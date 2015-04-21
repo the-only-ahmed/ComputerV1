@@ -3,23 +3,49 @@
 
 #include <iostream>
 #include <vector>
-#include <cmath>
+#include <string>
+
+#include "Math.hpp"
 
 class Fraction
 {
 private:
-   bool	                _Premier(int x);
    std::pair<int, int>	 _FactoriseSqrt(int n);
-   double                _Pow(double x, int p);
-   int                   _getComaNb(double x);
-   void                  _Resolve_1d(double a, double b);
-   void                  _Resolve_2d(double a, double b, double c, double delta);
+   void                  _Resolve_1d(double a, double b, std::string str);
+   void                  _Resolve_2d(double a, double b, double delta);
    std::vector<int>      _Mult(long n);
-   void                  _FactNb(long *a, long *b);
+   void                  _PositivD(double a, double b, std::pair<int, int> racineD, unsigned long p);
+   void                  _NegativD(double a, double b, std::pair<int, int> racineD, unsigned long p);
+
+   void                  _ahmed(double a, double b, double f, int Rf, int Rd, int Pd, bool ssn);
+   void                  _aaa(double *a, double *b);
+
+   template<typename T>
+   void                  _FactNb(T *a, T *b);
 
 public:
-   Fraction(int degree, double a, double b, double c, double delta);
+   Fraction(int degree, double a, double b, double delta);
    ~Fraction();
 };
+
+template<typename T>
+void  Fraction::_FactNb(T *a, T *b) {
+
+   long pa = static_cast<long>(*a);
+   long pb = static_cast<long>(*b);
+   std::vector<int> mult = this->_Mult(*a);
+
+   for(auto& x : mult)
+   {
+      if ((pb % x) == 0)
+      {
+         pa /= x;
+         pb /= x;
+      }
+   }
+
+   *a = pa;
+   *b = pb;
+}
 
 #endif

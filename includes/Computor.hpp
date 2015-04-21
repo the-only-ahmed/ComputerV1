@@ -3,6 +3,11 @@
 
 #include <list>
 #include <stdexcept>
+#include <string>
+#include <cctype>
+#include <iostream>
+#include <sstream>
+#include <algorithm>
 
 #include "Fraction.hpp"
 

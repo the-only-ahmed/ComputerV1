@@ -1,12 +1,4 @@
-
-#include <string>
-#include <cctype>
-#include <iostream>
-#include <sstream>
-#include <algorithm>
-#include <cmath>
 #include "Computor.hpp"
-
 
 // ** PRIVATE ** //
 
@@ -211,7 +203,7 @@ void			Computor::_findSolutions(bool arg)
 	else if (this->_maxDegree == 1)
 	{
 		if (arg)
-			Fraction(this->_maxDegree, this->_a, this->_b, this->_c, 0);
+			Fraction(this->_maxDegree, this->_b, this->_c, 0);
 		else
 			std::cout << "The solution is :" << -(this->_c / this->_b) <<std::endl;
 	}
@@ -221,11 +213,17 @@ void			Computor::_findSolutions(bool arg)
 		double		sol_1;
 		double		sol_2;
 
+		if (arg)
+		{
+			Fraction(this->_maxDegree, this->_a, this->_b, delta);
+			return;
+		}
+
 		if (delta > 0)
 		{
 			std::cout << "Discriminant is strictly positive, the two solutions are :" << std::endl;
-			sol_1 = (-(this->_b) - std::sqrt(delta)) / (2 * this->_a);
-			sol_2 = (-(this->_b) + std::sqrt(delta)) / (2 * this->_a);
+			sol_1 = (-(this->_b) - Math::SQRT(delta)) / (2 * this->_a);
+			sol_2 = (-(this->_b) + Math::SQRT(delta)) / (2 * this->_a);
 
 			std::cout << "Number one : " << sol_1 << std::endl;
 			std::cout << "Number two : " << sol_2 << std::endl;
@@ -241,10 +239,10 @@ void			Computor::_findSolutions(bool arg)
 		{
 			// std::cout << "No real results for this equation" << std::endl;
 			sol_1 = -(this->_b) / (2 * this->_a);
-			double sol_i1 = - std::sqrt(-delta) / (2 * this->_a);
+			double sol_i1 = - Math::SQRT(-delta) / (2 * this->_a);
 
 			sol_2 = -(this->_b) / (2 * this->_a);
-			double sol_i2 = std::sqrt(-delta) / (2 * this->_a);
+			double sol_i2 = Math::SQRT(-delta) / (2 * this->_a);
 
 			this->_Alpha("one", sol_1, sol_i1);
 			this->_Alpha("two", sol_2, sol_i2);
