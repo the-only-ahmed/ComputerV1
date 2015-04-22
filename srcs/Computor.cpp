@@ -14,6 +14,19 @@ void			Computor::_initComputor( void )
 	this->_c = 0;
 }
 
+void			Computor::_checkOthers(std::string str) {
+
+	std::string	s("0123456789*+-^=xX.");// = str.c_str();
+	std::string::iterator			it;
+	std::string::iterator			ite = str.end();
+
+	for (it = str.begin(); it != ite; it++)
+	{
+		if (s.find(*it) == std::string::npos)
+			throw ComputorException(std::string("Char not allowed : ") + *it);
+	}
+}
+
 void			Computor::_replaceSubstract( void )
 {
 	std::string::iterator		begin = this->_str.begin();
@@ -26,10 +39,14 @@ void			Computor::_replaceSubstract( void )
 		remove = true ;
 		// back = begin + pos;
 		// while (back != begin && (*back == '+' || isspace(*back)))
-		for (back = begin + pos; back != begin && *back == '+'; back--)
+		if (pos == 0)
+				remove = false;
+		else
 		{
-			if (*back == '+')
-				remove = false ;
+				back = begin + pos;
+				back--;
+				if (*back == '+' || *back == '^' || *back == '=')
+					remove = false ;
 		}
 		if (remove)
 		{
@@ -57,6 +74,20 @@ void			Computor::_getLeftRight( void )
 		throw ComputorException("Parsing error : multiple '=' present in equation");
 }
 
+void 			Computor::_checkToken(std::string token)
+{
+	int		xes = 0;
+
+	if (xes += std::count(token.begin(), token.end(), 'x') > 1)
+		throw ComputorException("Too many 'x'");
+	if (xes += std::count(token.begin(), token.end(), 'X') > 1)
+		throw ComputorException("Too many 'X'");
+	if (std::count(token.begin(), token.end(), '^') > 1)
+		throw ComputorException("Too many '^'");
+	if (xes > 1)
+		throw ComputorException("Too many 'x'");
+}
+
 void			Computor::_handle(std::string & part, int sign)
 {
 	std::istringstream		buffer(part);
@@ -74,6 +105,7 @@ void			Computor::_handle(std::string & part, int sign)
 			continue ;
 		coeff.value = 0;
 		coeff.degree = 0; //mettre tout le temps a 1 ?
+		this->_checkToken(token);
 		if ((pos = token.find('*')) != std::string::npos)
 		{
 			// std::cout << "pos '*': " << pos << std::endl;
@@ -85,7 +117,7 @@ void			Computor::_handle(std::string & part, int sign)
 				// std::cout << "stod 1" << std::endl;
 				coeff.value = (std::stod(token.substr(pos + 1)) * sign);
 				if ((pos2 = token.find("^", 0, pos)) != std::string::npos)
-					coeff.degree = std::stoi(token.substr(pos2 + 1, pos - 1));
+					coeff.degree = std::stod(token.substr(pos2 + 1, pos - 1));
 				else
 					coeff.degree = 1;
 			}
@@ -94,7 +126,7 @@ void			Computor::_handle(std::string & part, int sign)
 				// std::cout << "stod 2" << std::endl;
 				coeff.value = (std::stod(token) * sign); //s arrete bien ?
 				if ((pos2 = token.find('^', pos)) != std::string::npos)
-					coeff.degree = std::stoi(token.substr(pos2 + 1));
+					coeff.degree = std::stod(token.substr(pos2 + 1));
 				else
 					coeff.degree = 1;
 			}
@@ -103,10 +135,10 @@ void			Computor::_handle(std::string & part, int sign)
 		{
 			if (token.find('x') != std::string::npos || token.find('X') != std::string::npos)
 			{
-				// std::cout << "STOI" << std::endl;
+				// std::cout << "stod" << std::endl;
 				coeff.value = 1 * sign;
 				if ((pos2 = token.find('^')) != std::string::npos)
-					coeff.degree = std::stoi(token.substr(pos2 + 1));
+					coeff.degree = std::stod(token.substr(pos2 + 1));
 				else
 					coeff.degree = 1;
 				coeff.value = (token.find('-') != std::string::npos)? (coeff.value * -1) : (coeff.value * 1);
@@ -118,9 +150,12 @@ void			Computor::_handle(std::string & part, int sign)
 				coeff.degree = 0;
 			}
 		}
-		if (coeff.degree > this->_maxDegree)
-			this->_maxDegree = coeff.degree;
-		this->_coeffs.push_back(coeff);
+		if (coeff.value != 0)
+		{
+			if (coeff.degree > this->_maxDegree)
+				this->_maxDegree = coeff.degree;
+			this->_coeffs.push_back(coeff);
+		}
 	}
 }
 
@@ -202,10 +237,14 @@ void			Computor::_findSolutions(bool arg)
 		std::cout << "R" << std::endl;
 	else if (this->_maxDegree == 1)
 	{
+		double solution = -(this->_c / this->_b);
+		if (solution == -0)
+			solution = 0;
+
 		if (arg)
 			Fraction(this->_maxDegree, this->_b, this->_c, 0);
 		else
-			std::cout << "The solution is :" << -(this->_c / this->_b) <<std::endl;
+			std::cout << "The solution is : " << solution << std::endl;
 	}
 	else if (this->_maxDegree == 2)
 	{
@@ -230,7 +269,7 @@ void			Computor::_findSolutions(bool arg)
 		}
 		else if (delta == 0)
 		{
-			std::cout << "The solution is :" << std::endl;
+			std::cout << "The solution is : " << std::endl;
 			sol_1 = -(this->_b) / (2 * this->_a);
 
 			std::cout << sol_1 << std::endl;
@@ -285,15 +324,41 @@ void			Computor::_debugList()
 	std::cout << "***** END *****" << std::endl;
 }
 
+void 			Computor::_checkReducedForm( void )
+{
+	std::list<Coeff>::iterator			it;
+	std::list<Coeff>::iterator			next;
+
+	it = this->_coeffs.begin();
+	while (it != this->_coeffs.end())
+	{
+		next = it;
+		next++;
+		if (it->value == 0)
+			this->_coeffs.erase(it);
+		it = next;
+	}
+	this->_maxDegree = 0;
+	for (it = this->_coeffs.begin(); it != this->_coeffs.end(); it++)
+	{
+		if (Math::getComaNb(it->degree) > 0)
+			throw ComputorException("Not solvable equation --> x^" + std::to_string(it->degree));
+		if (it->degree > this->_maxDegree)
+			this->_maxDegree = it->degree;
+	}
+}
+
+
 void			Computor::treatEquation( std::string eq, bool arg )
 {
 	std::cout << "Treating equation : " << eq << std::endl;
 	this->_initComputor();
 	this->_str = eq;
 	this->_str.erase(std::remove_if(this->_str.begin(), this->_str.end(), ::isspace), this->_str.end());
-
+	this->_checkOthers(this->_str);
+//	std::cout << "1 : " << this->_str << std::endl;
 	this->_replaceSubstract();
-
+//	std::cout << "2 : " << this->_str << std::endl;
 	this->_getLeftRight();
 
 	try
@@ -309,6 +374,7 @@ void			Computor::treatEquation( std::string eq, bool arg )
  	this->_debugList(); // debug
 	this->_printCoeffs("Before reduced form: ");
 	this->_reducedForm();
+	this->_checkReducedForm();
 	std::cout << "Polynomial degree: " << this->_maxDegree << std::endl;
  	this->_debugList(); // debug
 	this->_findSolutions(arg);

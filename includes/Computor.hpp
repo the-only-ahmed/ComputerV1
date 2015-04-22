@@ -13,8 +13,8 @@
 
 struct Coeff
 {
-	double		value;
-	int			degree;
+	double			value;
+	double			degree;
 };
 
 
@@ -44,7 +44,9 @@ private:
 	void			_findABC( void );
 	void			_debugList();
 	void 			_Alpha(std::string str, double real, double image);
-
+	void 			_checkOthers(std::string str);
+	void 			_checkToken(std::string token);
+	void 			_checkReducedForm( void );
 
 // ** PUBLIC ** //
 

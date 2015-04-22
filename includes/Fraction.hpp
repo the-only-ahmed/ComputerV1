@@ -10,12 +10,14 @@
 class Fraction
 {
 private:
+   bool                  _negative;
+   bool                  _D2;
+
    std::pair<int, int>	 _FactoriseSqrt(int n);
    void                  _Resolve_1d(double a, double b, std::string str);
    void                  _Resolve_2d(double a, double b, double delta);
    std::vector<int>      _Mult(long n);
    void                  _PositivD(double a, double b, std::pair<int, int> racineD, unsigned long p);
-   void                  _NegativD(double a, double b, std::pair<int, int> racineD, unsigned long p);
 
    void                  _ahmed(double a, double b, double f, int Rf, int Rd, int Pd, bool ssn);
    void                  _aaa(double *a, double *b);
@@ -37,7 +39,7 @@ void  Fraction::_FactNb(T *a, T *b) {
 
    for(auto& x : mult)
    {
-      if ((pb % x) == 0)
+      if ((pa % x) == 0 && (pb % x) == 0)
       {
          pa /= x;
          pb /= x;

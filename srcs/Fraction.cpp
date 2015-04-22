@@ -1,6 +1,6 @@
 #include "Fraction.hpp"
 
-Fraction::Fraction(int deg, double a, double b, double delta) {
+Fraction::Fraction(int deg, double a, double b, double delta) : _D2(false) {
 
    if (deg == 1)
       this->_Resolve_1d(a, b, "The solution is :");
@@ -102,6 +102,8 @@ void  Fraction::_Resolve_1d(double x, double y, std::string str) {
    long a = static_cast<long>(x);
    long b = static_cast<long>(y);
 
+   if (this->_D2)
+      b *= -1;
    if (-b < 0 && a < 0)
    {
       a *= -1;
@@ -151,12 +153,16 @@ void  Fraction::_Resolve_2d(double a, double b, double delta) {
 
    std::pair<int, int> racineD = this->_FactoriseSqrt(static_cast<int>(delta));
 
-   if (delta > 0)
-      _PositivD(a, b, racineD, p);
-   else if (delta == 0)
+   if (delta == 0)
       this->_Resolve_1d(2 * a, b, "The solution is :");
    else
-      _NegativD(a, b, racineD, p);
+   {
+      if (delta > 0)
+         this->_negative = false;
+      else
+         this->_negative = true;
+      this->_PositivD(a, b, racineD, p);
+   }
 }
 
 void  Fraction::_PositivD(double a, double b, std::pair<int, int> racineD, unsigned long p) {
@@ -165,6 +171,7 @@ void  Fraction::_PositivD(double a, double b, std::pair<int, int> racineD, unsig
 
    if (p == 0 && racineD.second <= 1)
    {
+      this->_D2 = true;
       int x = -b - racineD.first;
          this->_Resolve_1d(2 * a, x, "Number one : ");
       x = -b + racineD.first;
@@ -261,20 +268,41 @@ void  Fraction::_ahmed(double a, double b, double f, int Rf, int Rd, int Pd, boo
    std::string RU_1 = (restUp_1 == 0)? std::string("") : std::to_string(restUp_1);
    std::string RU_2 = (restUp_2 == 1)? std::string("") : std::to_string(restUp_2);
 
-   std::cout << "( " << pgcdUp << " / " << pgcdDown << " )";
-   std::cout << " * (( " << RU_1 << " " << sign << " " << RU_2;
-   if (Rd > 1)
-   {
-      if (Pd > 1)
-         std::cout << " (";
-      std::cout << " V(" << Rd << ") ";
-      if (Pd > 1)
-         std::cout << " / V(" << Pd << "))";
-   }
-   if (restDown > 1)
-      std::cout << " ) / "<< restDown << " )" << std::endl;
-   else
-      std::cout << " )" << std::endl;
-}
+   if (this->_negative)
+      RU_2 += "i ";
 
-void  Fraction::_NegativD(double a, double b, std::pair<int, int> racineD, unsigned long p) {(void)a; (void)b; (void)racineD; (void)p;}
+   bool par = true;
+
+   if ((pgcdUp % pgcdDown) == 0)
+   {
+      if ((pgcdUp / pgcdDown) != 1)
+         std::cout << (pgcdUp / pgcdDown) << " * ";
+      else
+         par = false;
+   }
+   else
+      std::cout << "( " << pgcdUp << " / " << pgcdDown << " ) * ";
+
+   if (par)
+      std::cout << " (( ";
+   std::cout << RU_1 << " ";
+   if (Rd > 1 || Pd > 1 || RU_2 != "")
+   {
+      if (!(RU_1 == "" && sign == "+"))
+         std::cout << sign;
+      std::cout << " " << RU_2;
+   }
+
+   if (Pd > 1)
+      std::cout << " (";
+   if (Rd > 1)
+      std::cout << " V(" << Rd << ") ";
+   if (Pd > 1)
+      std::cout << " / V(" << Pd << "))";
+
+   if (restDown > 1)
+      std::cout << " ) / "<< restDown << " )";
+   else if (par)
+      std::cout << " )";
+   std::cout << std::endl;
+}

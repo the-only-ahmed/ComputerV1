@@ -32,12 +32,12 @@ double   Math::POW(double x, int p) {
 int      Math::getComaNb(double x) {
 
    int i = 0;
-   double diff = x - floor(x);
+   double diff = x - static_cast<int>(x);
    while (diff > 0)
    {
       i++;
       x *= 10;
-      diff = x - floor(x);
+      diff = x - static_cast<int>(x);
    }
    return i;
 }

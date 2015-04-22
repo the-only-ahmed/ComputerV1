@@ -15,7 +15,7 @@ int		main(int argc, char **argv)
 	}
 	if (std::string(argv[1]) == "-F")
 		arg = true;
-	for (i = 1; i < argc; i++)
+	for (i = (arg) ? 2 : 1; i < argc; i++)
 	{
 		try
 		{
