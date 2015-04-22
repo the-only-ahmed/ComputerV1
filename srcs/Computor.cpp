@@ -4,6 +4,7 @@
 
 void			Computor::_initComputor( void )
 {
+	this->_debug = false;
 	this->_str.clear();
 	this->_left.clear();
 	this->_right.clear();
@@ -16,7 +17,7 @@ void			Computor::_initComputor( void )
 
 void			Computor::_checkOthers(std::string str) {
 
-	std::string	s("0123456789*+-^=xX.");// = str.c_str();
+	std::string	s("0123456789*+-^=xX.");
 	std::string::iterator			it;
 	std::string::iterator			ite = str.end();
 
@@ -37,8 +38,7 @@ void			Computor::_replaceSubstract( void )
 	while (pos < this->_str.length() && ((pos = this->_str.find('-', pos)) != std::string::npos))
 	{
 		remove = true ;
-		// back = begin + pos;
-		// while (back != begin && (*back == '+' || isspace(*back)))
+
 		if (pos == 0)
 				remove = false;
 		else
@@ -96,11 +96,12 @@ void			Computor::_handle(std::string & part, int sign)
 	size_t					pos;
 	size_t					pos2;
 
-// 5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0
-	std::cout << "Full line >>>> " << part << std::endl;
+	if (this->_debug)
+		std::cout << "Full line >>>> " << part << std::endl;
 	while (std::getline(buffer, token, '+'))
 	{
-		std::cout << "token : " << token << std::endl;
+		if (this->_debug)
+			std::cout << "token : " << token << std::endl;
 		if (token == "")
 			continue ;
 		coeff.value = 0;
@@ -108,13 +109,9 @@ void			Computor::_handle(std::string & part, int sign)
 		this->_checkToken(token);
 		if ((pos = token.find('*')) != std::string::npos)
 		{
-			// std::cout << "pos '*': " << pos << std::endl;
-			// if (token.substr(0, pos).find("x", 0, pos) != std::string::npos
-			// 	|| token.substr(0, pos).find("X", 0, pos) != std::string::npos)
 			if (token.substr(0, pos).find('x') != std::string::npos
 				|| token.substr(0, pos).find('X') != std::string::npos)
 			{
-				// std::cout << "stod 1" << std::endl;
 				coeff.value = (std::stod(token.substr(pos + 1)) * sign);
 				if ((pos2 = token.find("^", 0, pos)) != std::string::npos)
 					coeff.degree = std::stod(token.substr(pos2 + 1, pos - 1));
@@ -123,7 +120,6 @@ void			Computor::_handle(std::string & part, int sign)
 			}
 			else
 			{
-				// std::cout << "stod 2" << std::endl;
 				coeff.value = (std::stod(token) * sign); //s arrete bien ?
 				if ((pos2 = token.find('^', pos)) != std::string::npos)
 					coeff.degree = std::stod(token.substr(pos2 + 1));
@@ -135,7 +131,6 @@ void			Computor::_handle(std::string & part, int sign)
 		{
 			if (token.find('x') != std::string::npos || token.find('X') != std::string::npos)
 			{
-				// std::cout << "stod" << std::endl;
 				coeff.value = 1 * sign;
 				if ((pos2 = token.find('^')) != std::string::npos)
 					coeff.degree = std::stod(token.substr(pos2 + 1));
@@ -145,7 +140,6 @@ void			Computor::_handle(std::string & part, int sign)
 			}
 			else
 			{
-				// std::cout << "stod 3" << std::endl;
 				coeff.value = (std::stod(token) * sign);
 				coeff.degree = 0;
 			}
@@ -164,7 +158,6 @@ void			Computor::_reducedForm( void )
 	std::list<Coeff>::iterator			it;
 	std::list<Coeff>::iterator			it2;
 	std::list<Coeff>::iterator			tmp;
-	// std::list<Coeff>::iterator			ite;
 
 	for (it = this->_coeffs.begin(); it != this->_coeffs.end(); it++)
 	{
@@ -234,7 +227,7 @@ void			Computor::_findSolutions(bool arg)
 	}
 	this->_findABC();
 	if (this->_maxDegree == 0)
-		std::cout << "R" << std::endl;
+		std::cout << "The solution is {R} All real numbers [-oo, +oo]" << std::endl;
 	else if (this->_maxDegree == 1)
 	{
 		double solution = -(this->_c / this->_b);
@@ -349,16 +342,16 @@ void 			Computor::_checkReducedForm( void )
 }
 
 
-void			Computor::treatEquation( std::string eq, bool arg )
+void			Computor::treatEquation( std::string eq, bool arg, bool debug)
 {
-	std::cout << "Treating equation : " << eq << std::endl;
+	this->_debug = debug;
+	if (debug)
+		std::cout << "Treating equation : " << eq << std::endl;
 	this->_initComputor();
 	this->_str = eq;
 	this->_str.erase(std::remove_if(this->_str.begin(), this->_str.end(), ::isspace), this->_str.end());
 	this->_checkOthers(this->_str);
-//	std::cout << "1 : " << this->_str << std::endl;
 	this->_replaceSubstract();
-//	std::cout << "2 : " << this->_str << std::endl;
 	this->_getLeftRight();
 
 	try
@@ -371,12 +364,14 @@ void			Computor::treatEquation( std::string eq, bool arg )
 		std::cout << "Error : " << e.what() << std::endl;
 		throw ComputorException("Handle error");
 	}
- 	this->_debugList(); // debug
+	if (debug)
+ 		this->_debugList(); // debug
 	this->_printCoeffs("Before reduced form: ");
 	this->_reducedForm();
 	this->_checkReducedForm();
 	std::cout << "Polynomial degree: " << this->_maxDegree << std::endl;
- 	this->_debugList(); // debug
+ 	if (debug)
+		this->_debugList(); // debug
 	this->_findSolutions(arg);
 	std::cout << "---------------------------------------" << std::endl;
 }

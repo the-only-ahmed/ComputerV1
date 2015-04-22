@@ -9,6 +9,11 @@ private:
    static double  	_powerOfTen(int num);
    static double  	_square_suite(double rst, double j, double a);
 
+   Math();
+   ~Math();
+   Math(Math const &src);
+   Math &   operator=(Math const &rhs);
+
 public:
    static int        PGCD(int a, int b);
 

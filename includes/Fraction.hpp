@@ -25,6 +25,9 @@ private:
    template<typename T>
    void                  _FactNb(T *a, T *b);
 
+   Fraction(Fraction const &src);
+   Fraction &   operator=(Fraction const &rhs);
+
 public:
    Fraction(int degree, double a, double b, double delta);
    ~Fraction();

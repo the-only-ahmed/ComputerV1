@@ -31,6 +31,7 @@ private:
 	double				_a;
 	double				_b;
 	double				_c;
+	bool					_debug;
 
 	Computor( const Computor & src );
 	Computor &		operator=( const Computor & src );
@@ -54,7 +55,7 @@ public:
 	Computor( void );
 	~Computor( void );
 
-	void			treatEquation( std::string eq, bool arg );
+	void			treatEquation( std::string eq, bool arg, bool debug );
 
 
 // ** EXCEPTIONS ** //
