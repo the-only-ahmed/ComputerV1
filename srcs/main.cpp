@@ -5,7 +5,7 @@
 int		main(int argc, char **argv)
 {
 	Computor			computor;
-	int				i = 1;
+	int                 i = 1;
 	bool				arg = false;
 	bool				debug = false;
 
@@ -17,11 +17,15 @@ int		main(int argc, char **argv)
 	if (std::string(argv[1]) == "-D")
 	{
 		i++;
-		debug = true;
+		if (argc == 2)
+            std::cout << "Usage : ./" << argv[0] << " [-D] [-F] <equation>" << std::endl;
+        debug = true;
 	}
-	if (std::string(argv[1]) == "-F" || (debug && std::string(argv[2]) == "-F"))
+	if (std::string(argv[1]) == "-F" || (argc > 2 && debug && std::string(argv[2]) == "-F"))
 	{
 		i++;
+        if ((debug && argc == 3) || argc == 2)
+            std::cout << "Usage : ./" << argv[0] << " [-D] [-F] <equation>" << std::endl;
 		arg = true;
 	}
 	for (; i < argc; i++)
