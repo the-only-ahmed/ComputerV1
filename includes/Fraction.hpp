@@ -19,8 +19,8 @@ private:
    std::vector<int>      _Mult(long n);
    void                  _PositivD(double a, double b, std::pair<int, int> racineD, unsigned long p);
 
-   void                  _ahmed(double a, double b, double f, int Rf, int Rd, int Pd, bool ssn);
-   void                  _aaa(double *a, double *b);
+   void                  _print(double a, double b, double f, int Rf, int Rd, int Pd, bool ssn);
+   void                  _coma(double *a, double *b);
 
    template<typename T>
    void                  _FactNb(T *a, T *b);

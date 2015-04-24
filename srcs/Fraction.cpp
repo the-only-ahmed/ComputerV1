@@ -15,6 +15,7 @@ std::vector<int>     Fraction::_Mult(long n) {
 
    std::vector<int> mult;
 
+   n = Math::ABS(n);
    while (n > 1)
    {
       for (int i = 2; i <= n ; i++)
@@ -167,14 +168,17 @@ void  Fraction::_Resolve_2d(double a, double b, double delta) {
 
 void  Fraction::_PositivD(double a, double b, std::pair<int, int> racineD, unsigned long p) {
 
-   std::cout << "Discriminant is strictly positive, the two solutions are :" << std::endl;
+   if (this->_negative)
+      std::cout << "Discriminant is strictly negative, the two solutions are :" << std::endl;
+   else
+      std::cout << "Discriminant is strictly positive, the two solutions are :" << std::endl;
 
    if (p == 0 && racineD.second <= 1)
    {
       this->_D2 = true;
-      int x = -b - racineD.first;
+      int x = -b - (racineD.first * racineD.second);
          this->_Resolve_1d(2 * a, x, "Number one : ");
-      x = -b + racineD.first;
+      x = -b + (racineD.first * racineD.second);
          this->_Resolve_1d(2 * a, x, "Number two : ");
       return;
    }
@@ -190,12 +194,12 @@ void  Fraction::_PositivD(double a, double b, std::pair<int, int> racineD, unsig
    f *= 2 * a;
 
    std::cout << "Number one : ";
-   this->_ahmed(a, b, f, racineD.first, racineD.second, part.second, true);
+   this->_print(2 * a, b, f, racineD.first, racineD.second, part.second, true);
    std::cout << "Number two : ";
-   this->_ahmed(a, b, f, racineD.first, racineD.second, part.second, false);
+   this->_print(2 * a, b, f, racineD.first, racineD.second, part.second, false);
 }
 
-void  Fraction::_aaa(double *a, double *b) {
+void  Fraction::_coma(double *a, double *b) {
 
    unsigned int pA = 1;
    if (*a != 0)
@@ -227,11 +231,11 @@ void  Fraction::_aaa(double *a, double *b) {
    this->_FactNb(a, b);
 }
 
-void  Fraction::_ahmed(double a, double b, double f, int Rf, int Rd, int Pd, bool ssn) {
+void  Fraction::_print(double a, double b, double f, int Rf, int Rd, int Pd, bool ssn) {
 
-   this->_aaa(&a, &b);
+   this->_coma(&a, &b);
    double rf = Rf;
-   this->_aaa(&f, &rf);
+   this->_coma(&f, &rf);
    Rf = static_cast<int>(rf);
 
    int x = static_cast<int>(a);
@@ -239,14 +243,17 @@ void  Fraction::_ahmed(double a, double b, double f, int Rf, int Rd, int Pd, boo
    int z = static_cast<int>(f);
 
    int pgcdUp = Math::PGCD(Math::ABS(y), Math::ABS(Rf));
-   int pgcdDown = Math::PGCD(Math::ABS(2 * x), Math::ABS(z));
+   int pgcdDown = Math::PGCD(Math::ABS(x), Math::ABS(z));
 
    int restUp_1 = (-b / pgcdUp);
    int restUp_2 = (Rf / pgcdUp);
 
    int restDown_1 = a / pgcdDown;
    int restDown_2 = f / pgcdDown;
-   int restDown = restDown_1 + restDown_2;
+   int restDown = 0;
+
+   if (restDown_1 == restDown_2)
+      restDown = restDown_1;
 
    if (restDown < 0)
    {
@@ -269,7 +276,7 @@ void  Fraction::_ahmed(double a, double b, double f, int Rf, int Rd, int Pd, boo
    std::string RU_2 = (restUp_2 == 1)? std::string("") : std::to_string(restUp_2);
 
    if (this->_negative)
-      RU_2 += "i ";
+      RU_2 += "i";
 
    bool par = true;
 
@@ -285,24 +292,50 @@ void  Fraction::_ahmed(double a, double b, double f, int Rf, int Rd, int Pd, boo
 
    if (par)
       std::cout << " (( ";
-   std::cout << RU_1 << " ";
-   if (Rd > 1 || Pd > 1 || RU_2 != "")
+
+   auto func = [&] () {
+
+      if (Pd > 1)
+         std::cout << " (";
+      if (Rd > 1)
+         std::cout << " V(" << Rd << ") ";
+      if (Pd > 1)
+         std::cout << " / V(" << Pd << "))";
+   };
+
+   if (restDown != 0)
    {
-      if (!(RU_1 == "" && sign == "+"))
-         std::cout << sign;
-      std::cout << " " << RU_2;
+      std::cout << RU_1 << " ";
+      if (Rd > 1 || Pd > 1 || RU_2 != "")
+      {
+         if (!(RU_1 == "" && sign == "+"))
+            std::cout << sign;
+         std::cout << " " << RU_2;
+      }
+      func();
+      if (restDown > 1)
+         std::cout << " ) / "<< restDown << " )";
+      else if (par)
+         std::cout << " )";
+      std::cout << std::endl;
    }
+   else
+   {
+      if ((restUp_1 % restDown_1) == 0)
+      {
+         if ((restUp_1 / restDown_1) != 0)
+            std::cout << (restUp_1 / restDown_1) << sign;
+         else if (sign == "-")
+            std::cout << sign;
+      }
+      else
+         std::cout << "( " << restUp_1 << " / " << restDown_1 << " ) " << sign;
 
-   if (Pd > 1)
-      std::cout << " (";
-   if (Rd > 1)
-      std::cout << " V(" << Rd << ") ";
-   if (Pd > 1)
-      std::cout << " / V(" << Pd << "))";
-
-   if (restDown > 1)
-      std::cout << " ) / "<< restDown << " )";
-   else if (par)
-      std::cout << " )";
-   std::cout << std::endl;
+      std::cout << " ( " << RU_2;
+      func();
+      std::cout << " ) ";
+      if (restDown_2 != 1)
+         std::cout << " / " << restDown_2;
+      std::cout << std::endl;
+   }
 }

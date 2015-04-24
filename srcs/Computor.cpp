@@ -84,6 +84,8 @@ void 			Computor::_checkToken(std::string token)
 		throw ComputorException("Too many 'X'");
 	if (std::count(token.begin(), token.end(), '^') > 1)
 		throw ComputorException("Too many '^'");
+	if (std::count(token.begin(), token.end(), '*') > 1)
+		throw ComputorException("Too many '*'");
 	if (xes > 1)
 		throw ComputorException("Too many 'x'");
 }
@@ -187,11 +189,19 @@ void			Computor::_printCoeffs( std::string info )
 	std::cout << info;
 	for (it = this->_coeffs.begin(); it != ite; it++)
 	{
-		std::cout << it->value << " * X^" << it->degree;
-		if (i != this->_coeffs.size())
-			std::cout << " + ";
+		if (i > 1)
+		{
+			if (it->value < 0)
+				std::cout << " - " << -(it->value);
+			else
+				std::cout << " + " << it->value;
+		}
+		else
+			std::cout << it->value;
+		std::cout << " * X^" << it->degree;
 		i++;
 	}
+
 	std::cout << " = 0"<< std::endl;
 }
 
@@ -342,12 +352,11 @@ void 			Computor::_checkReducedForm( void )
 }
 
 
-void			Computor::treatEquation( std::string eq, bool arg, bool debug)
+void			Computor::treatEquation( std::string eq, bool arg, bool debug )
 {
-	this->_debug = debug;
-	if (debug)
-		std::cout << "Treating equation : " << eq << std::endl;
+	std::cout << "Treating equation : " << eq << std::endl;
 	this->_initComputor();
+	this->_debug = debug;
 	this->_str = eq;
 	this->_str.erase(std::remove_if(this->_str.begin(), this->_str.end(), ::isspace), this->_str.end());
 	this->_checkOthers(this->_str);
